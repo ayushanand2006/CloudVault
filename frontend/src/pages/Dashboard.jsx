@@ -72,6 +72,39 @@ const SidebarItem = ({ icon: Icon, label, active, onClick, count }) => (
   </div>
 );
 
+/* ═══════════════ NICE LOADER ═══════════════ */
+const NiceLoader = ({ activeTab }) => {
+  const [msgIndex, setMsgIndex] = useState(0);
+  const messages = {
+    'My Drive': ['Fetching your personal vault...', 'Securing your files...', 'Organizing your drive...'],
+    'Shared with me': ['Looking for collaborations...', 'Syncing shared access...', 'Checking shared files...'],
+    'Starred': ['Finding your top picks...', 'Highlighting important gems...', 'Organizing favorites...'],
+    'Trash': ['Scanning the archive...', 'Preparing the trash bin...', 'Locating deleted items...'],
+    'Activity': ['Recording latest events...', 'Chronicling changes...', 'Building your timeline...'],
+  }[activeTab] || ['Loading your data...', 'Please wait...', 'Almost there...'];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMsgIndex((prev) => (prev + 1) % messages.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [messages.length]);
+
+  return (
+    <div className="nice-loader-container">
+      <div className="loader-visual">
+        <div className="loader-ring" />
+        <div className="loader-ring-outer" />
+        <CloudUpload size={40} className="loader-center-icon" color="#1a73e8" />
+      </div>
+      <div className="loader-content">
+        <h2 className="loader-text-main" key={msgIndex}>{messages[msgIndex]}</h2>
+        <p className="loader-text-sub">Connecting to CloudVault Secure Servers</p>
+      </div>
+    </div>
+  );
+};
+
 /* ═══════════════════════════════════════════════════════
    DASHBOARD
 ═══════════════════════════════════════════════════════ */
@@ -413,7 +446,7 @@ const Dashboard = () => {
         {/* ── CONTENT ── */}
         <div className="content-area" ref={dropZoneRef}>
           {loading ? (
-            <div className="loading-state"><Loader2 size={44} className="spin" color="#1a73e8" /></div>
+            <NiceLoader activeTab={activeTab} />
           ) : filteredItems.length > 0 ? (
             <div className="items-wrapper">
               {/* FOLDERS SECTION */}
@@ -753,6 +786,25 @@ const Dashboard = () => {
 
         /* ── Loading ── */
         .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 140px; gap: 16px; }
+
+        /* ── Nice Loader ── */
+        .nice-loader-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 120px 20px; animation: fadeIn 0.4s ease-out; }
+        .loader-visual { position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; margin-bottom: 40px; }
+        .loader-center-icon { z-index: 2; animation: float 3s ease-in-out infinite; }
+        .loader-ring { position: absolute; width: 70px; height: 70px; border: 3px solid #1a73e8; border-radius: 40%; border-top-color: transparent; animation: spin 2s infinite linear; }
+        .loader-ring-outer { position: absolute; width: 100px; height: 100px; border: 2px solid rgba(26,115,232,0.1); border-radius: 35%; border-bottom-color: #1a73e8; animation: spin 4s infinite reverse linear; }
+        .loader-content { text-align: center; }
+        .loader-text-main { font-size: 1.4rem; font-weight: 500; color: #202124; margin-bottom: 12px; height: 1.8rem; animation: textFade 0.6s ease-out; letter-spacing: -0.4px; }
+        .loader-text-sub { font-size: 0.88rem; color: #80868b; font-weight: 500; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.7; }
+
+        @keyframes textFade {
+          0% { opacity: 0; transform: translateY(10px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
 
         /* ── Info Panel ── */
         .info-panel { width: 360px; background: #fff; border-left: 1px solid #e0e0e0; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; box-shadow: -4px 0 16px rgba(0,0,0,0.05); }
