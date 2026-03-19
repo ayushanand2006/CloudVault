@@ -67,8 +67,8 @@ const Security = () => {
     {
       icon: Layers, color: '#ea4335', bg: '#fce8e6',
       title: 'Multi-Layer Security Model',
-      desc: 'Security at CloudVault is not a single lock — it\'s a layered defense. From two-factor authentication to IP-based anomaly detection, every layer enforces the principle of least privilege.',
-      points: ['Two-factor authentication (TOTP)', 'Session token rotation', 'IP anomaly detection', 'Rate limiting on all APIs']
+      desc: 'Security at CloudVault is not a single lock — it\'s a layered defense. From advanced identity management to IP-based anomaly detection, every layer enforces the principle of least privilege.',
+      points: ['Advanced identity management', 'Session token rotation', 'IP anomaly detection', 'Rate limiting on all APIs']
     },
     {
       icon: FileCheck, color: '#a142f4', bg: '#f3e8fd',

@@ -403,7 +403,7 @@ const Landing = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {[
                 'End-to-end encryption on all files',
-                'Two-factor authentication support',
+                'Advanced identity management',
                 'Zero-knowledge architecture',
                 'SOC2-ready infrastructure',
               ].map((item, i) => (
@@ -437,7 +437,7 @@ const Landing = () => {
               </div>
               {[
                 { label: 'Encryption Active', status: 'Enabled', ok: true },
-                { label: 'Two-Factor Auth', status: 'Enabled', ok: true },
+                { label: 'Identity Verified', status: 'Secure', ok: true },
                 { label: 'SSL Certificate', status: 'Valid', ok: true },
                 { label: 'Backup Redundancy', status: '3x replicated', ok: true },
               ].map((row, i) => (

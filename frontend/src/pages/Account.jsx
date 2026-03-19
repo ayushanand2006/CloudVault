@@ -98,9 +98,7 @@ const Account = () => {
         const features = [];
         score += 25;
         features.push({ icon: Shield, label: 'Clerk Authentication', desc: 'End-to-end user identity management', active: true });
-        if (stats.has2fa) { score += 20; }
-        features.push({ icon: Smartphone, label: 'Two-Factor Auth', desc: 'Additional verification layer', active: stats.has2fa });
-        score += 10;
+        score += 15;
         features.push({ icon: Database, label: 'Encrypted Storage', desc: 'AES-256 Supabase encryption', active: true });
         score += 5;
         features.push({ icon: Globe, label: 'SSL/TLS Encryption', desc: 'Secure data in transit', active: true });
@@ -251,7 +249,7 @@ const Account = () => {
                                     <div className="acc-score-info">
                                         <span className="acc-score-label" style={{ color: scoreColor, background: `${scoreColor}14` }}>{scoreLabel}</span>
                                         <p className="acc-score-desc">
-                                            {security.score >= 80 ? 'Your CloudVault is well protected with strong security measures.' : 'Enable two-factor authentication to strengthen your account security.'}
+                                            {security.score >= 80 ? 'Your CloudVault is well protected with strong security measures.' : 'Your account security is baseline. Contact admin for advanced options.'}
                                         </p>
                                     </div>
                                 </div>
