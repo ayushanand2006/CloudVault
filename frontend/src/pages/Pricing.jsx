@@ -5,7 +5,9 @@ import {
   HardDrive, CheckCircle, ArrowRight, Zap, Shield,
   Users, Globe, Lock, Star, X, ChevronDown, ChevronUp
 } from 'lucide-react';
-import { SignUpButton } from '@clerk/clerk-react';
+import { SignUpButton, SignedIn, SignedOut } from '@clerk/clerk-react';
+import { useSubscription } from '../context/SubscriptionContext';
+import PaymentModal from '../components/PaymentModal';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 32 },
@@ -13,45 +15,23 @@ const fadeUp = {
 };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.12 } } };
 
-const Navbar = () => (
-  <nav style={{ height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 6%', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 1000, borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-    <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-      <div style={{ width: '40px', height: '40px', background: 'linear-gradient(135deg, #4285f4, #1a73e8)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <HardDrive color="white" size={22} strokeWidth={2} />
-      </div>
-      <span style={{ fontSize: '1.4rem', fontWeight: 700, color: '#202124', letterSpacing: '-0.3px' }}>CloudVault</span>
-    </Link>
-    <div style={{ display: 'flex', gap: '28px', alignItems: 'center' }}>
-      <Link to="/how-it-works" style={{ textDecoration: 'none', color: '#5f6368', fontWeight: 500, fontSize: '0.95rem' }}>How it works</Link>
-      <Link to="/pricing" style={{ textDecoration: 'none', color: '#1a73e8', fontWeight: 600, fontSize: '0.95rem' }}>Pricing</Link>
-      <Link to="/security" style={{ textDecoration: 'none', color: '#5f6368', fontWeight: 500, fontSize: '0.95rem' }}>Security</Link>
-      <SignUpButton mode="modal">
-        <button style={{ background: '#1a73e8', border: 'none', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: '0.95rem', padding: '9px 22px', borderRadius: '22px', fontFamily: 'inherit' }}>Get started</button>
-      </SignUpButton>
-    </div>
-  </nav>
-);
-
-const Footer = () => (
-  <footer style={{ borderTop: '1px solid #e8eaed', padding: '48px 6% 32px', background: '#fff' }}>
-    <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '24px' }}>
-      <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-        <div style={{ width: '32px', height: '32px', background: 'linear-gradient(135deg, #4285f4, #1a73e8)', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><HardDrive size={16} color="#fff" /></div>
-        <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#202124' }}>CloudVault</span>
-      </Link>
-      <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
-        {[['/', 'Home'], ['/how-it-works', 'How it works'], ['/pricing', 'Pricing'], ['/security', 'Security'], ['/privacy', 'Privacy']].map(([to, label]) => (
-          <Link key={label} to={to} style={{ textDecoration: 'none', color: '#5f6368', fontSize: '0.88rem', fontWeight: 500 }}>{label}</Link>
-        ))}
-      </div>
-      <p style={{ fontSize: '0.85rem', color: '#80868b' }}>© 2026 CloudVault Inc.</p>
-    </div>
-  </footer>
-);
 
 const Pricing = () => {
   const [billing, setBilling] = useState('monthly'); // 'monthly' | 'annual'
   const [openFaq, setOpenFaq] = useState(null);
+  const { activePlan, isTierGreater, upgradePlan } = useSubscription();
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+
+  const handlePlanClick = (plan) => {
+    if (plan.name === activePlan) return;
+    if (plan.isEnterprise) {
+        window.location.href = "mailto:sales@cloudvault.app";
+        return;
+    }
+    setSelectedPlan(plan);
+    setIsPaymentOpen(true);
+  };
 
   const plans = [
     {
@@ -187,7 +167,6 @@ const Pricing = () => {
 
   return (
     <div style={{ background: '#fff', fontFamily: "'Google Sans', 'Roboto', system-ui, sans-serif", color: '#202124' }}>
-      <Navbar />
 
       {/* Hero */}
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #fff 100%)', padding: '100px 6% 80px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
@@ -222,7 +201,7 @@ const Pricing = () => {
       {/* Plan Cards */}
       <section style={{ padding: '0 6% 100px', background: '#fff' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <motion.div initial="hidden" animate="visible" variants={stagger} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', alignItems: 'stretch' }}>
+          <motion.div initial="hidden" animate="visible" variants={stagger} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', alignItems: 'stretch' }} className="pricing-grid">
             {plans.map((plan, i) => {
               const price = getPrice(plan);
               return (
@@ -286,22 +265,44 @@ const Pricing = () => {
                       ))}
                     </ul>
 
-                    <SignUpButton mode="modal">
-                      <button style={{
-                        width: '100%', padding: '12px', borderRadius: '12px',
-                        background: plan.isPrimary ? '#1a73e8' : 'transparent',
-                        color: plan.isPrimary ? '#fff' : plan.color,
-                        border: plan.isPrimary ? 'none' : `1.5px solid ${plan.color}`,
-                        fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer',
-                        transition: 'all 0.2s', fontFamily: 'inherit',
-                        boxShadow: plan.isPrimary ? '0 2px 8px rgba(26,115,232,0.25)' : 'none',
-                      }}
-                        onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = ''; }}
+                    <SignedIn>
+                      <button 
+                        onClick={() => handlePlanClick(plan)}
+                        disabled={plan.name === activePlan}
+                        style={{
+                          width: '100%', padding: '12px', borderRadius: '12px',
+                          background: plan.name === activePlan ? '#f1f3f4' : (plan.isPrimary ? '#1a73e8' : 'transparent'),
+                          color: plan.name === activePlan ? '#9ca3af' : (plan.isPrimary ? '#fff' : plan.color),
+                          border: plan.name === activePlan ? 'none' : (plan.isPrimary ? 'none' : `1.5px solid ${plan.color}`),
+                          fontSize: '0.9rem', fontWeight: 600, cursor: plan.name === activePlan ? 'default' : 'pointer',
+                          transition: 'all 0.2s', fontFamily: 'inherit',
+                          boxShadow: plan.isPrimary && plan.name !== activePlan ? '0 2px 8px rgba(26,115,232,0.25)' : 'none',
+                        }}
+                        onMouseEnter={e => { if(plan.name !== activePlan) { e.currentTarget.style.opacity = '0.85'; e.currentTarget.style.transform = 'translateY(-1px)'; } }}
+                        onMouseLeave={e => { if(plan.name !== activePlan) { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = ''; } }}
                       >
-                        {plan.cta}
+                        {plan.name === activePlan ? 'Current Plan' : (isTierGreater(plan.name, activePlan) ? 'Upgrade Now' : 'Downgrade')}
                       </button>
-                    </SignUpButton>
+                    </SignedIn>
+
+                    <SignedOut>
+                      <SignUpButton mode="modal">
+                        <button style={{
+                          width: '100%', padding: '12px', borderRadius: '12px',
+                          background: plan.isPrimary ? '#1a73e8' : 'transparent',
+                          color: plan.isPrimary ? '#fff' : plan.color,
+                          border: plan.isPrimary ? 'none' : `1.5px solid ${plan.color}`,
+                          fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer',
+                          transition: 'all 0.2s', fontFamily: 'inherit',
+                          boxShadow: plan.isPrimary ? '0 2px 8px rgba(26,115,232,0.25)' : 'none',
+                        }}
+                          onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = ''; }}
+                        >
+                          {plan.cta}
+                        </button>
+                      </SignUpButton>
+                    </SignedOut>
                   </div>
                 </motion.div>
               );
@@ -354,8 +355,9 @@ const Pricing = () => {
             <h2 style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)', fontWeight: 700, color: '#202124', letterSpacing: '-0.5px' }}>Find the right plan for you</h2>
           </motion.div>
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-            <div style={{ borderRadius: '20px', border: '1px solid #e8eaed', overflow: 'hidden' }}>
-              {/* Table header */}
+            <div style={{ borderRadius: '20px', border: '1px solid #e8eaed', overflowX: 'auto' }}>
+              <div style={{ minWidth: '800px' }}>
+                {/* Table header */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr repeat(4, 120px)', background: '#f8faff', padding: '20px 24px', borderBottom: '1px solid #e8eaed', gap: '12px' }}>
                 <div />
                 {['Free', 'Pro', 'Business', 'Enterprise'].map((name, i) => (
@@ -379,7 +381,8 @@ const Pricing = () => {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
+        </motion.div>
         </div>
       </section>
 
@@ -429,7 +432,38 @@ const Pricing = () => {
         </div>
       </section>
 
-      <Footer />
+
+
+      <style>{`
+        @media (max-width: 1024px) {
+          .pricing-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 24px !important; }
+        }
+
+        @media (max-width: 768px) {
+          nav { padding: 0 5% !important; }
+          .nav-item { display: none !important; }
+          .nav-cta { padding: 8px 18px !important; font-size: 0.85rem !important; }
+          
+          h1 { font-size: 2.2rem !important; }
+          .pricing-grid { grid-template-columns: 1fr !important; }
+          
+          div[style*="gridTemplateColumns: 'repeat(auto-fit'"] { grid-template-columns: 1fr !important; }
+          
+          section { padding: 60px 6% !important; }
+        }
+      `}</style>
+
+      {selectedPlan && (
+        <PaymentModal 
+          isOpen={isPaymentOpen} 
+          onClose={() => setIsPaymentOpen(false)} 
+          plan={selectedPlan}
+          billingCycle={billing}
+          onSuccess={(planName) => {
+            upgradePlan(planName, billing);
+          }}
+        />
+      )}
     </div>
   );
 };

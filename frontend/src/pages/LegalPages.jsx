@@ -1,9 +1,6 @@
-import React from 'react';
-import MainLayout from '../components/MainLayout';
-
 const LegalPage = ({ title, content }) => (
-    <MainLayout>
-        <div style={{ padding: '100px 8%', maxWidth: '900px', margin: '0 auto', background: '#ffffff', color: '#0f172a' }}>
+    <>
+        <div style={{ padding: '100px 8%', maxWidth: '900px', margin: '0 auto', background: '#ffffff', color: '#0f172a' }} className="legal-container">
             <h1 style={{ fontSize: '4rem', fontWeight: '950', marginBottom: '60px', letterSpacing: '-2px' }}>{title}</h1>
             <div style={{ fontSize: '1.2rem', lineHeight: '1.8', color: '#475569' }}>
                 {content.map((section, i) => (
@@ -14,7 +11,15 @@ const LegalPage = ({ title, content }) => (
                 ))}
             </div>
         </div>
-    </MainLayout>
+        <style>{`
+            @media (max-width: 768px) {
+                .legal-container { padding: 60px 6% !important; }
+                h1 { font-size: 2.5rem !important; margin-bottom: 40px !important; }
+                h2 { font-size: 1.5rem !important; }
+                p { font-size: 1rem !important; }
+            }
+        `}</style>
+    </>
 );
 
 export const Privacy = () => (

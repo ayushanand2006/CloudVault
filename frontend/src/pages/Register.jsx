@@ -21,11 +21,14 @@ const Register = () => {
             <div style={{ position: 'absolute', top: '65%', right: '8%', width: '8px', height: '8px', borderRadius: '50%', background: 'rgba(100,160,255,0.5)', animation: 'float2 8s ease-in-out infinite' }} />
             <div style={{ position: 'absolute', top: '40%', left: '10%', width: '12px', height: '12px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', animation: 'float1 7s ease-in-out infinite reverse' }} />
 
-            <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '1100px', display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', gap: '80px', padding: '40px 48px' }}>
+            <div 
+                style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '1100px', display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', gap: '80px', padding: '40px 48px' }}
+                className="auth-container"
+            >
                 
                 {/* Branding Side */}
-                <div style={{ color: '#ffffff' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '48px', cursor: 'pointer' }} onClick={() => navigate('/')}>
+                <div style={{ color: '#ffffff' }} className="auth-branding">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '48px', cursor: 'pointer' }} onClick={() => navigate('/')} className="auth-logo">
                         <div style={{ width: '56px', height: '56px', background: 'linear-gradient(135deg, #4285f4, #1a73e8)', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(26,115,232,0.4), inset 0 1px 1px rgba(255,255,255,0.2)' }}>
                             <HardDrive color="white" size={28} strokeWidth={2} />
                         </div>
@@ -37,11 +40,11 @@ const Register = () => {
                         <span style={{ color: '#4285f4' }}>of private storage.</span>
                     </h2>
                     
-                    <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.65)', marginBottom: '48px', lineHeight: '1.7', maxWidth: '400px' }}>
+                    <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.65)', marginBottom: '48px', lineHeight: '1.7', maxWidth: '400px' }} className="auth-desc">
                         Create your account in seconds. Get 15GB of encrypted storage instantly — no credit card required.
                     </p>
                     
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }} className="auth-features">
                         {[
                             { icon: Gift, text: '15 GB free storage — no card needed' },
                             { icon: ShieldCheck, text: 'Client-side zero-knowledge encryption' },
@@ -89,6 +92,17 @@ const Register = () => {
             <style>{`
                 @keyframes float1 { 0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; } 50% { transform: translateY(-20px) scale(1.15); opacity: 0.7; } }
                 @keyframes float2 { 0%, 100% { transform: translateY(0) translateX(0); opacity: 0.4; } 50% { transform: translateY(-14px) translateX(10px); opacity: 0.8; } }
+                @media (max-width: 1024px) {
+                    .auth-container { gap: 40px !important; padding: 40px !important; }
+                    h2 { font-size: 2.2rem !important; }
+                }
+                @media (max-width: 768px) {
+                    .auth-container { grid-template-columns: 1fr !important; padding: 32px 24px !important; gap: 44px !important; }
+                    .auth-logo { margin-bottom: 24px !important; }
+                    h2 { font-size: 2rem !important; margin-bottom: 16px !important; }
+                    .auth-desc { margin-bottom: 32px !important; font-size: 1rem !important; }
+                    .auth-features { display: none !important; }
+                }
             `}</style>
         </div>
     );

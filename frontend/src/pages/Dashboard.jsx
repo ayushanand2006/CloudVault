@@ -105,6 +105,32 @@ const NiceLoader = ({ activeTab }) => {
   );
 };
 
+/* ═══════════════ MOBILE COMPONENTS ═══════════════ */
+const BottomNav = ({ activeTab, onTabChange }) => {
+  const tabs = [
+    { id: 'My Drive', icon: HardDrive },
+    { id: 'Shared with me', icon: Users },
+    { id: 'Starred', icon: Star },
+    { id: 'Trash', icon: Trash2 },
+  ];
+  return (
+    <nav className="bottom-nav">
+      {tabs.map((tab) => (
+        <div key={tab.id} onClick={() => onTabChange(tab.id)} className={`bottom-nav-item ${activeTab === tab.id ? 'active' : ''}`}>
+          <tab.icon size={22} strokeWidth={activeTab === tab.id ? 2.5 : 2} />
+          <span>{tab.id === 'Shared with me' ? 'Shared' : tab.id}</span>
+        </div>
+      ))}
+    </nav>
+  );
+};
+
+const FAB = ({ onClick }) => (
+  <button className="mobile-fab" onClick={onClick} title="Add new">
+    <Plus size={28} color="#fff" strokeWidth={2.5} />
+  </button>
+);
+
 /* ═══════════════════════════════════════════════════════
    DASHBOARD
 ═══════════════════════════════════════════════════════ */
@@ -319,7 +345,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="drive-root"
+    <div className={`drive-root ${isInfoPanelOpen ? 'info-open' : ''}`}
       onDragEnter={handleDragEnter} onDragLeave={handleDragLeave}
       onDragOver={handleDragOver} onDrop={handleDrop}
       onClick={() => setSelectedItem(null)}
@@ -413,23 +439,29 @@ const Dashboard = () => {
       <main className="main-content">
         {/* ── HEADER ── */}
         <header className="topbar">
+          <div className="mobile-logo" onClick={() => { setActiveTab('My Drive'); setCurrentFolderId('root'); setBreadcrumbs([{ id: 'root', name: 'My Drive' }]); }}>
+            <div className="logo-icon-sm"><HardDrive size={18} color="#fff" /></div>
+          </div>
           <div className="search-wrapper">
             <Search size={20} color="#5f6368" />
             <input type="text" placeholder="Search in Drive" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="search-input" />
             {searchQuery && <X size={18} className="search-clear" onClick={() => setSearchQuery('')} />}
           </div>
           <div className="topbar-actions">
-            <button className="upload-btn" onClick={() => fileInputRef.current?.click()}>
+            <button className="upload-btn desk-only" onClick={() => fileInputRef.current?.click()}>
               <Upload size={18} /> Upload
             </button>
-            <button className="icon-btn" onClick={() => setIsFolderModalOpen(true)} title="New folder">
+            <button className="icon-btn desk-only" onClick={() => setIsFolderModalOpen(true)} title="New folder">
               <FolderPlus size={20} />
             </button>
-            <div className="topbar-divider" />
+            <div className="topbar-divider desk-only" />
             <button className="icon-btn" onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')} title="Toggle view">
               {viewMode === 'grid' ? <List size={20} /> : <Grid size={20} />}
             </button>
             {isInfoPanelOpen && <button className="icon-btn active" onClick={() => setIsInfoPanelOpen(false)} title="Close info"><Info size={20} /></button>}
+            <button className="mobile-user-trigger mob-only" onClick={() => navigate('/account')}>
+               {user?.imageUrl && <img src={user.imageUrl} alt="" className="sidebar-avatar" style={{width: 32, height: 32}} />}
+            </button>
           </div>
         </header>
 
@@ -572,6 +604,10 @@ const Dashboard = () => {
             </div>
           )}
         </div>
+
+        {/* ── MOBILE UI ELEMENTS ── */}
+        <FAB onClick={() => setIsFolderModalOpen(true)} />
+        <BottomNav activeTab={activeTab} onTabChange={(tab) => { setActiveTab(tab); setCurrentFolderId('root'); setBreadcrumbs([{ id: 'root', name: 'My Drive' }]); }} />
       </main>
 
       {/* ═══ INFO PANEL ═══ */}
@@ -880,6 +916,54 @@ const Dashboard = () => {
         * { user-select: none; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         input, textarea, select { user-select: text !important; }
         ::selection { background: #c2e7ff; }
+
+        /* ═══════════════ RESPONSIVE ═══════════════ */
+        .mob-only { display: none; }
+        .mobile-logo { display: none; }
+        .logo-icon-sm { width: 32px; height: 32px; background: linear-gradient(135deg, #4285f4 0%, #1a73e8 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(26,115,232,0.25); }
+        .bottom-nav { display: none; }
+        .mobile-fab { display: none; }
+
+        @media (max-width: 768px) {
+          .sidebar { display: none; }
+          .main-content { border-radius: 0; margin: 0; width: 100%; box-shadow: none; }
+          .topbar { padding: 10px 16px; gap: 10px; height: 64px; }
+          .breadcrumb-bar { padding: 12px 16px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+          .breadcrumb-bar::-webkit-scrollbar { display: none; }
+          .content-area { padding: 0 16px 100px; }
+          .desk-only { display: none; }
+          .mob-only { display: flex; }
+          .mobile-logo { display: flex; cursor: pointer; }
+          .search-wrapper { padding: 4px 16px; min-width: 0; flex: 1; }
+          .search-input { font-size: 0.9rem; }
+          
+          .folder-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+          .file-grid { grid-template-columns: 1fr; gap: 10px; }
+          .folder-card { padding: 12px; gap: 10px; border-radius: 12px; }
+          .folder-card-icon { width: 36px; height: 36px; }
+          .folder-card-name { font-size: 0.85rem; }
+          .file-card { border-radius: 14px; }
+          .file-card-preview { height: 140px; }
+          
+          /* Bottom Nav */
+          .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: rgba(255,255,255,0.96); backdrop-filter: blur(25px); border-top: 1px solid rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-around; z-index: 100; padding: 0 10px 20px; box-shadow: 0 -4px 20px rgba(0,0,0,0.03); }
+          .bottom-nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #5f6368; cursor: pointer; transition: 0.2s cubic-bezier(0.4,0,0.2,1); min-width: 64px; flex: 1; }
+          .bottom-nav-item span { font-size: 0.68rem; font-weight: 500; }
+          .bottom-nav-item.active { color: #1a73e8; }
+          .bottom-nav-item.active span { font-weight: 700; }
+          .bottom-nav-item:active { transform: scale(0.9); }
+          
+          /* FAB */
+          .mobile-fab { position: fixed; bottom: 95px; right: 20px; width: 58px; height: 58px; border-radius: 18px; background: linear-gradient(135deg, #1a73e8, #4285f4); border: none; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(26,115,232,0.45), inset 0 1px 0 rgba(255,255,255,0.2); z-index: 99; cursor: pointer; transition: 0.3s cubic-bezier(0.4,0,0.2,1); }
+          .mobile-fab:active { transform: scale(0.9) rotate(90deg); }
+
+          /* Info Panel */
+          .info-panel { position: fixed; left: 0; right: 0; bottom: 0; top: auto; width: 100%; height: 85vh; z-index: 2000; border-radius: 24px 24px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); animation: slideInUp 0.4s cubic-bezier(0.2,0.9,0.3,1); border-left: none; border-top: 1px solid #e0e0e0; }
+          @keyframes slideInUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+          
+          .ip-actions { justify-content: center; }
+          .ip-preview { padding: 24px 16px; }
+        }
       `}</style>
     </div>
   );

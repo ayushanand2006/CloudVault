@@ -20,7 +20,7 @@ const stagger = {
 
 /* ── Reusable section header ── */
 const SectionHeader = ({ eyebrow, title, subtitle, center = true }) => (
-  <div style={{ textAlign: center ? 'center' : 'left', marginBottom: '80px' }}>
+  <div style={{ textAlign: center ? 'center' : 'left', marginBottom: '80px' }} className="section-header">
     {eyebrow && (
       <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1a73e8', textTransform: 'uppercase', letterSpacing: '1.2px', marginBottom: '16px', fontFamily: "'Inter', sans-serif" }}>
         {eyebrow}
@@ -109,58 +109,8 @@ const Landing = () => {
   return (
     <div style={{ background: '#fff', color: '#202124', fontFamily: "'Inter', system-ui, sans-serif", overflowX: 'hidden', minHeight: '100vh' }}>
 
-      {/* ── NAVBAR ── */}
-      <motion.nav
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        style={{
-          height: '72px', display: 'flex', alignItems: 'center',
-          justifyContent: 'space-between', padding: '0 6%',
-          background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(20px)',
-          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-          borderBottom: '1px solid rgba(0,0,0,0.06)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <div style={{ width: '40px', height: '40px', background: 'linear-gradient(135deg, #4285f4, #1a73e8)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(26,115,232,0.3)' }}>
-            <HardDrive color="white" size={22} strokeWidth={2} />
-          </div>
-          <span style={{ fontSize: '1.5rem', fontWeight: 700, color: '#202124', letterSpacing: '-0.02em', fontFamily: "'Outfit', sans-serif" }}>CloudVault</span>
-        </div>
-
-        <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
-          {['Features', 'Pricing', 'Security'].map((item, i) => (
-            <Link key={i} to={['how-it-works', 'pricing', 'security'][i] === 'pricing' ? '/pricing' : `/${['how-it-works','pricing','security'][i]}`}
-              style={{ textDecoration: 'none', color: '#5f6368', fontWeight: 500, fontSize: '0.92rem', transition: '0.2s', fontFamily: "'Inter', sans-serif" }}
-              onMouseEnter={e => e.target.style.color = '#1a73e8'}
-              onMouseLeave={e => e.target.style.color = '#5f6368'}
-            >{item}</Link>
-          ))}
-
-          <SignedOut>
-            <SignInButton mode="modal">
-              <button style={{ background: 'transparent', border: 'none', color: '#1a73e8', fontWeight: 600, cursor: 'pointer', fontSize: '0.95rem', padding: '8px 16px', borderRadius: '20px', transition: '0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.background = '#e8f0fe'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-              >Sign in</button>
-            </SignInButton>
-            <SignUpButton mode="modal">
-              <button style={{ background: '#1a73e8', border: 'none', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: '0.95rem', padding: '10px 24px', borderRadius: '24px', transition: 'all 0.2s', boxShadow: '0 2px 8px rgba(26,115,232,0.3)' }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#1765cc'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(26,115,232,0.4)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#1a73e8'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(26,115,232,0.3)'; }}
-              >Get started — free</button>
-            </SignUpButton>
-          </SignedOut>
-          <SignedIn>
-            <Link to="/drive" style={{ textDecoration: 'none', color: '#1a73e8', fontWeight: 600, fontSize: '0.95rem' }}>Open Drive</Link>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
-        </div>
-      </motion.nav>
-
       {/* ── HERO ── */}
-      <section style={{ paddingTop: '140px', paddingBottom: '100px', textAlign: 'center', background: 'linear-gradient(180deg, #f8faff 0%, #fff 100%)', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ paddingTop: '100px', paddingBottom: '100px', textAlign: 'center', background: 'linear-gradient(180deg, #f8faff 0%, #fff 100%)', position: 'relative', overflow: 'hidden' }}>
         {/* Subtle dot pattern */}
         <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, #dadce0 1px, transparent 1px)', backgroundSize: '28px 28px', opacity: 0.5, pointerEvents: 'none' }} />
 
@@ -168,7 +118,7 @@ const Landing = () => {
         <div style={{ position: 'absolute', top: '10%', left: '5%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(26,115,232,0.07), transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', top: '20%', right: '5%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(52,168,83,0.06), transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
 
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: '1100px', margin: '0 auto', padding: '0 5%' }}>
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: '1100px', margin: '0 auto', padding: '0 5%' }} className="hero-content">
           <motion.div initial="hidden" animate="visible" variants={stagger}>
             {/* Eyebrow badge */}
             <motion.div variants={fadeUp}>
@@ -199,12 +149,12 @@ const Landing = () => {
             </motion.h1>
 
             {/* Subtitle */}
-            <motion.p variants={fadeUp} style={{ fontSize: '1.25rem', color: '#5f6368', lineHeight: 1.7, maxWidth: '680px', margin: '0 auto 56px', fontFamily: "'Inter', sans-serif" }}>
+            <motion.p variants={fadeUp} style={{ fontSize: '1.25rem', color: '#5f6368', lineHeight: 1.7, maxWidth: '680px', margin: '0 auto 56px', fontFamily: "'Inter', sans-serif" }} className="hero-subtitle">
               Get the secure cloud storage you need to collaborate and store your most important files. Protected by Google-grade security protocols.
             </motion.p>
 
             {/* CTA buttons */}
-            <motion.div variants={fadeUp} style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '80px' }}>
+            <motion.div variants={fadeUp} style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '80px' }} className="hero-ctas">
               <SignUpButton mode="modal">
                 <button style={{
                   display: 'inline-flex', alignItems: 'center', gap: '12px',
@@ -254,6 +204,7 @@ const Landing = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
           style={{ maxWidth: '1100px', margin: '72px auto 0', padding: '0 5%', position: 'relative', zIndex: 1 }}
+          className="mockup-container"
         >
           {/* Drive UI Mockup */}
           <div style={{
@@ -673,14 +624,39 @@ const Landing = () => {
 
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
-        @media(max-width:1024px){
-          div[style*="gridTemplateColumns: '1fr 1fr'"]{grid-template-columns:1fr!important;}
-          div[style*="gridTemplateColumns: 'repeat(3"]{grid-template-columns:1fr!important;}
-          div[style*="gridTemplateColumns: '2fr 1fr 1fr 1fr'"]{grid-template-columns:1fr 1fr!important;}
+        
+        .nav-links { display: flex; gap: 32px; align-items: center; }
+        
+        @media (max-width: 1024px) {
+          section { padding-left: 5% !important; padding-right: 5% !important; }
+          .hero-content { max-width: 100% !important; }
+          .mockup-container { display: none !important; }
+          div[style*="gridTemplateColumns: '1fr 1fr'"] { grid-template-columns: 1fr !important; gap: 40px !important; }
+          div[style*="gridTemplateColumns: 'repeat(3"] { grid-template-columns: 1fr !important; max-width: 500px !important; margin: 0 auto !important; }
+          div[style*="gridTemplateColumns: '2fr 1fr 1fr 1fr'"] { grid-template-columns: 1fr 1fr !important; }
         }
-        @media(max-width:768px){
-          div[style*="gridTemplateColumns: 'repeat(4"]{grid-template-columns:repeat(2,1fr)!important;}
-          div[style*="gridTemplateColumns: '2fr 1fr 1fr 1fr'"]{grid-template-columns:1fr!important;}
+
+        @media (max-width: 768px) {
+          nav { padding: 0 5% !important; }
+          .nav-link-item { display: none !important; }
+          .nav-signin-btn { display: none !important; }
+          .nav-cta-btn { padding: 8px 18px !important; font-size: 0.85rem !important; }
+          
+          h1 { font-size: 2.5rem !important; margin-bottom: 24px !important; }
+          .hero-subtitle { font-size: 1.1rem !important; margin-bottom: 40px !important; }
+          .hero-ctas { flex-direction: column !important; width: 100% !important; }
+          .hero-ctas > * { width: 100% !important; justify-content: center !important; }
+          
+          .section-header h2 { font-size: 2rem !important; }
+          .section-header p { font-size: 1rem !important; }
+          
+          div[style*="gridTemplateColumns: 'repeat(4"] { grid-template-columns: repeat(2,1fr) !important; }
+          div[style*="gridTemplateColumns: '2fr 1fr 1fr 1fr'"] { grid-template-columns: 1fr !important; gap: 40px !important; }
+          
+          footer { text-align: center; }
+          footer div[style*="display: 'flex'"] { justify-content: center !important; }
+          .footer-top { grid-template-columns: 1fr !important; text-align: center; }
+          .footer-col { display: flex; flex-direction: column; align-items: center; }
         }
       `}</style>
     </div>

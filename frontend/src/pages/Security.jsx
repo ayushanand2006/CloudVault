@@ -13,43 +13,6 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
 };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.12 } } };
-
-const Navbar = () => (
-  <nav style={{ height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 6%', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 1000, borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-    <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-      <div style={{ width: '40px', height: '40px', background: 'linear-gradient(135deg, #4285f4, #1a73e8)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <HardDrive color="white" size={22} strokeWidth={2} />
-      </div>
-      <span style={{ fontSize: '1.4rem', fontWeight: 700, color: '#202124', letterSpacing: '-0.3px' }}>CloudVault</span>
-    </Link>
-    <div style={{ display: 'flex', gap: '28px', alignItems: 'center' }}>
-      <Link to="/how-it-works" style={{ textDecoration: 'none', color: '#5f6368', fontWeight: 500, fontSize: '0.95rem' }}>How it works</Link>
-      <Link to="/pricing" style={{ textDecoration: 'none', color: '#5f6368', fontWeight: 500, fontSize: '0.95rem' }}>Pricing</Link>
-      <Link to="/security" style={{ textDecoration: 'none', color: '#1a73e8', fontWeight: 600, fontSize: '0.95rem' }}>Security</Link>
-      <SignUpButton mode="modal">
-        <button style={{ background: '#1a73e8', border: 'none', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: '0.95rem', padding: '9px 22px', borderRadius: '22px', fontFamily: 'inherit' }}>Get started</button>
-      </SignUpButton>
-    </div>
-  </nav>
-);
-
-const Footer = () => (
-  <footer style={{ borderTop: '1px solid #e8eaed', padding: '48px 6% 32px', background: '#fff' }}>
-    <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '24px' }}>
-      <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-        <div style={{ width: '32px', height: '32px', background: 'linear-gradient(135deg, #4285f4, #1a73e8)', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><HardDrive size={16} color="#fff" /></div>
-        <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#202124' }}>CloudVault</span>
-      </Link>
-      <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
-        {[['/', 'Home'], ['/how-it-works', 'How it works'], ['/pricing', 'Pricing'], ['/security', 'Security'], ['/privacy', 'Privacy']].map(([to, label]) => (
-          <Link key={label} to={to} style={{ textDecoration: 'none', color: '#5f6368', fontSize: '0.88rem', fontWeight: 500 }}>{label}</Link>
-        ))}
-      </div>
-      <p style={{ fontSize: '0.85rem', color: '#80868b' }}>© 2026 CloudVault Inc.</p>
-    </div>
-  </footer>
-);
-
 const Security = () => {
   const pillars = [
     {
@@ -101,7 +64,7 @@ const Security = () => {
 
   return (
     <div style={{ background: '#fff', fontFamily: "'Google Sans', 'Roboto', system-ui, sans-serif", color: '#202124' }}>
-      <Navbar />
+
 
       {/* Hero */}
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #fff 100%)', padding: '100px 6% 80px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
@@ -160,7 +123,10 @@ const Security = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
             {pillars.map((p, i) => (
               <motion.div key={i} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-40px' }} variants={fadeUp}>
-                <div style={{ display: 'grid', gridTemplateColumns: i % 2 === 0 ? '1fr 1fr' : '1fr 1fr', gap: '72px', alignItems: 'center', padding: '72px 0', borderBottom: i < pillars.length - 1 ? '1px solid #f0f2f5' : 'none' }}>
+                <div 
+                  style={{ display: 'grid', gridTemplateColumns: i % 2 === 0 ? '1fr 1fr' : '1fr 1fr', gap: '72px', alignItems: 'center', padding: '72px 0', borderBottom: i < pillars.length - 1 ? '1px solid #f0f2f5' : 'none' }}
+                  className="pillar-row"
+                >
                   <div style={{ order: i % 2 === 0 ? 1 : 2 }}>
                     <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: p.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
                       <p.icon size={28} color={p.color} />
@@ -195,7 +161,7 @@ const Security = () => {
 
       {/* Transparency section */}
       <section style={{ background: '#f8faff', borderTop: '1px solid #e8eaed', padding: '100px 6%' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }} className="transparency-grid">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
             <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34a853', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '16px' }}>Transparency</p>
             <h2 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', fontWeight: 700, color: '#202124', letterSpacing: '-0.5px', marginBottom: '20px' }}>We hold ourselves to a higher standard</h2>
@@ -260,7 +226,35 @@ const Security = () => {
         </div>
       </section>
 
-      <Footer />
+
+
+      <style>{`
+        @media (max-width: 1024px) {
+          .nav-item { font-size: 0.85rem !important; }
+          .pillar-row { grid-template-columns: 1fr !important; gap: 40px !important; padding: 48px 0 !important; }
+          .pillar-row > div:nth-child(2) { order: -1 !important; }
+          .transparency-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+        }
+
+        @media (max-width: 768px) {
+          nav { padding: 0 5% !important; }
+          .nav-item { display: none !important; }
+          .nav-cta { padding: 8px 18px !important; font-size: 0.85rem !important; }
+          
+          h1 { font-size: 2.2rem !important; margin-bottom: 20px !important; }
+          section { padding: 60px 6% !important; }
+          
+          div[style*="justifyContent: 'center', gap: '48px'"] { gap: 24px !important; }
+          div[style*="fontSize: '2rem'"] p { font-size: 1.5rem !important; }
+          
+          .pillar-row h3 { font-size: 1.4rem !important; }
+          .pillar-row p { font-size: 0.95rem !important; }
+          .pillar-row div[style*="padding: '56px'"] { padding: 32px !important; }
+          
+          footer div[style*="justifyContent: 'space-between'"] { flex-direction: column !important; text-align: center !important; }
+          footer div[style*="gap: '32px'"] { justify-content: center !important; }
+        }
+      `}</style>
     </div>
   );
 };

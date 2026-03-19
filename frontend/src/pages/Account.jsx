@@ -3,9 +3,10 @@ import { useUser, useAuth, UserProfile } from '@clerk/clerk-react';
 import { 
     ArrowLeft, HardDrive, Shield, Smartphone, Database, Lock, Folder, File, 
     Users, Star, Trash2, Check, X, Globe, Cloud, Zap, BarChart3, PieChart,
-    ChevronRight, Settings, Bell, Activity, Eye
+    ChevronRight, Settings, Bell, Activity, Eye, CreditCard, History
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useSubscription } from '../context/SubscriptionContext';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { setAuthToken, getStats } from '../services/api';
 
 /* ─── Animated Counter ─── */
@@ -67,7 +68,10 @@ const Account = () => {
     const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [activeSection, setActiveSection] = useState('overview');
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const activeSection = searchParams.get('tab') || 'overview';
+    const { activePlan, billingCycle } = useSubscription();
 
     useEffect(() => {
         const loadStats = async () => {
@@ -75,14 +79,20 @@ const Account = () => {
                 const token = await getToken();
                 setAuthToken(token);
                 const res = await getStats();
-                setStats(res.data);
+                const mockData = { ...res.data };
+                // Override plan related stats for 'fake' feel
+                if (activePlan === 'Pro') mockData.maxStorageBytes = 200 * 1024 * 1024 * 1024;
+                if (activePlan === 'Business') mockData.maxStorageBytes = 2 * 1024 * 1024 * 1024 * 1024;
+                if (activePlan === 'Free') mockData.maxStorageBytes = 15 * 1024 * 1024 * 1024;
+                mockData.usedPercentage = (mockData.totalBytes / mockData.maxStorageBytes) * 100;
+                setStats(mockData);
             } catch (err) {
                 console.error('Failed to load stats:', err);
                 setStats({ totalBytes: 0, maxStorageBytes: 15*1024*1024*1024, usedPercentage: 0, fileCount: 0, folderCount: 0, sharedCount: 0, starredCount: 0, trashCount: 0, has2fa: false, plan: 'Free' });
             } finally { setLoading(false); }
         };
         loadStats();
-    }, []);
+    }, [activePlan]); // Reload stats if plan changes
 
     const formatBytes = (bytes) => {
         if (bytes === 0) return '0 B';
@@ -117,22 +127,22 @@ const Account = () => {
                     <button className="acc-back-btn" onClick={() => navigate('/drive')}>
                         <ArrowLeft size={18} />
                     </button>
-                    <div className="acc-logo">
-                        <div className="acc-logo-icon">
-                            <Cloud size={20} color="#fff" />
-                        </div>
-                        <span>CloudVault</span>
+                    <div className="acc-breadcrumb">
+                        <span className="acc-breadcrumb-item" onClick={() => navigate('/drive')}>Vault</span>
+                        <ChevronRight size={14} className="acc-breadcrumb-separator" />
+                        <span className="acc-breadcrumb-current">Account Settings</span>
                     </div>
                 </div>
                 <div className="acc-header-tabs">
                     {[
                         { id: 'overview', label: 'Overview', icon: BarChart3 },
+                        { id: 'billing', label: 'Billing', icon: CreditCard },
                         { id: 'security', label: 'Security', icon: Shield },
                         { id: 'profile', label: 'Profile', icon: Settings },
                     ].map(tab => (
                         <button key={tab.id}
                             className={`acc-tab ${activeSection === tab.id ? 'active' : ''}`}
-                            onClick={() => setActiveSection(tab.id)}
+                            onClick={() => navigate(`/account?tab=${tab.id}`)}
                         >
                             <tab.icon size={16} />
                             {tab.label}
@@ -170,7 +180,7 @@ const Account = () => {
                             </div>
                             <div className="acc-hero-badge">
                                 <Zap size={14} />
-                                {stats?.plan || 'Free'} Plan
+                                {activePlan} Plan
                             </div>
                         </div>
 
@@ -194,10 +204,10 @@ const Account = () => {
                                         <p className="acc-storage-subtitle">{formatBytes(stats.totalBytes)} of {formatBytes(stats.maxStorageBytes)} used</p>
                                     </div>
                                     <div className="acc-plan-badge" style={{ 
-                                        background: stats.plan === 'Pro' ? 'linear-gradient(135deg, #4285f4, #1a73e8)' : '#f1f3f4',
-                                        color: stats.plan === 'Pro' ? '#fff' : '#5f6368' 
+                                        background: activePlan !== 'Free' ? 'linear-gradient(135deg, #4285f4, #1a73e8)' : '#f1f3f4',
+                                        color: activePlan !== 'Free' ? '#fff' : '#5f6368' 
                                     }}>
-                                        {stats.plan || 'Free'}
+                                        {activePlan}
                                     </div>
                                 </div>
 
@@ -228,6 +238,83 @@ const Account = () => {
                                 </div>
                             </div>
                         )}
+                    </div>
+                )}
+
+                {/* ═══ BILLING TAB ═══ */}
+                {activeSection === 'billing' && (
+                    <div className="acc-section fade-slide-in">
+                        <div className="acc-billing-grid">
+                            {/* Current Plan Card */}
+                            <div className="acc-plan-card" style={{ background: activePlan === 'Business' ? 'linear-gradient(135deg, #34a853, #1e8e3e)' : 'linear-gradient(135deg, #1a73e8, #4285f4)' }}>
+                                <div className="acc-plan-card-header">
+                                    <div>
+                                        <p className="acc-plan-label">Active Subscription</p>
+                                        <h2 className="acc-plan-name">{activePlan}</h2>
+                                    </div>
+                                    <div className="acc-plan-icon" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                                        <Zap size={24} color="#fff" />
+                                    </div>
+                                </div>
+                                <div className="acc-plan-details">
+                                    <div className="acc-plan-feature">
+                                        <Check size={16} color="#fff" />
+                                        <span>{activePlan === 'Free' ? '15 GB' : activePlan === 'Pro' ? '200 GB' : '2 TB'} Secure Storage</span>
+                                    </div>
+                                    <div className="acc-plan-feature">
+                                        <Check size={16} color="#fff" />
+                                        <span>{activePlan === 'Free' ? 'Standard' : 'Priority'} Support</span>
+                                    </div>
+                                    <div className="acc-plan-feature" style={{ opacity: activePlan === 'Free' ? 0.5 : 1 }}>
+                                        <Check size={16} color="#fff" />
+                                        <span>Billed {billingCycle.charAt(0).toUpperCase() + billingCycle.slice(1)}ly</span>
+                                    </div>
+                                </div>
+                                <div className="acc-plan-footer">
+                                    <div className="acc-plan-price">
+                                        <strong>{activePlan === 'Free' ? '₹0' : activePlan === 'Pro' ? (billingCycle === 'annual' ? '₹99' : '₹149') : (billingCycle === 'annual' ? '₹269' : '₹399')}</strong>
+                                        <span>/month</span>
+                                    </div>
+                                    <button className="acc-upgrade-btn" onClick={() => navigate('/pricing')}>
+                                        {activePlan === 'Free' ? 'Upgrade Plan' : 'Change Plan'}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Payment History */}
+                            <div className="acc-history-card">
+                                <div className="acc-history-header">
+                                    <h3>Payment History</h3>
+                                    <button className="acc-history-all">View All</button>
+                                </div>
+                                <div className="acc-history-table-wrapper">
+                                    <table className="acc-history-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Plan</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {activePlan !== 'Free' ? (
+                                                <tr>
+                                                    <td>Mar 19, 2026</td>
+                                                    <td>{activePlan}</td>
+                                                    <td>₹{activePlan === 'Pro' ? (billingCycle === 'annual' ? '1188' : '149') : (billingCycle === 'annual' ? '3228' : '399')}</td>
+                                                    <td><span className="acc-status-badge success">Success</span></td>
+                                                </tr>
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan="4" style={{ textAlign: 'center', padding: '40px', color: '#80868b' }}>No transactions yet</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -285,14 +372,18 @@ const Account = () => {
                         <div className="acc-profile-card">
                             <UserProfile appearance={{
                                 elements: {
-                                    card: "shadow-none border-none p-0 bg-transparent",
+                                    card: "shadow-none border-none p-0 bg-transparent w-full",
                                     navbar: "hidden",
-                                    headerTitle: "text-2xl font-bold text-slate-900",
-                                    headerSubtitle: "text-slate-500",
-                                    profileSectionTitleText: "text-slate-900 font-bold",
+                                    headerTitle: "hidden",
+                                    headerSubtitle: "hidden",
+                                    profileSectionTitleText: "text-xl font-bold text-slate-900 mb-6",
                                     scrollBox: "bg-transparent",
-                                    pageScrollBox: "p-8",
-                                    rootBox: "w-full",
+                                    pageScrollBox: "p-0",
+                                    rootBox: "w-full max-w-none",
+                                    profileSection: "border-b border-slate-100 pb-10 mb-10 last:border-0",
+                                    userPreviewMainIdentifier: "text-lg font-bold text-slate-900",
+                                    userPreviewSecondaryIdentifier: "text-slate-500",
+                                    formButtonPrimary: "bg-blue-600 hover:bg-blue-700 transition-all rounded-xl",
                                 }
                             }} />
                         </div>
@@ -391,15 +482,67 @@ const Account = () => {
 
                 /* Responsive */
                 @media (max-width: 900px) {
-                    .acc-stats-grid { grid-template-columns: repeat(3, 1fr); }
+                    .acc-stats-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
                     .acc-security-grid { grid-template-columns: 1fr; }
-                    .acc-hero { flex-direction: column; align-items: flex-start; gap: 16px; }
+                    .acc-hero { flex-direction: column; align-items: flex-start; gap: 20px; text-align: left; padding: 24px; }
+                    .acc-hero-content { flex-direction: column; align-items: flex-start; gap: 16px; }
+                    .acc-hero-badge { align-self: flex-start; }
                 }
-                @media (max-width: 600px) {
-                    .acc-stats-grid { grid-template-columns: repeat(2, 1fr); }
-                    .acc-main { padding: 16px; }
-                    .acc-header-tabs { display: none; }
-                }
+
+                @media (max-width: 768px) {
+                    .acc-header { padding: 0 16px; height: 56px; position: sticky; top: 0; z-index: 1001; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #f1f3f4; }
+                    .acc-header-tabs { display: none !important; } 
+                    .acc-breadcrumb-item, .acc-breadcrumb-separator { display: none; }
+                    .acc-breadcrumb-current { font-size: 1rem; }
+                    .acc-main { padding: 12px 12px 100px; }
+                    .acc-hero { padding: 20px; border-radius: 16px; margin-bottom: 16px; }
+                    .acc-hero-name { font-size: 1.1rem; }
+                    .acc-hero-email { font-size: 0.8rem; }
+                    .acc-stats-grid { gap: 8px; margin-bottom: 16px; }
+                    .acc-stat-card { padding: 12px; border-radius: 14px; }
+                    .acc-stat-value { font-size: 1.2rem; }
+                    .acc-stat-label { font-size: 0.7rem; }
+                    .acc-storage-card { padding: 20px; border-radius: 16px; }
+                    .acc-storage-header h3 { font-size: 1rem; }
+                    .acc-storage-subtitle { font-size: 0.75rem; }
+                    .acc-score-card, .acc-security-features, .acc-history-card { padding: 20px; border-radius: 16px; }
+                    .acc-plan-card { padding: 24px; border-radius: 16px; }
+                    .acc-plan-name { font-size: 1.8rem; }
+                    .acc-plan-price strong { font-size: 1.3rem; }
+                 }
+
+                 /* Desktop Layout Polish */
+                 .acc-billing-grid { display: grid; grid-template-columns: 420px 1fr; gap: 24px; max-width: 1200px; margin: 0 auto; }
+                 .acc-profile-card { max-width: 800px; margin: 0 auto; width: 100%; border-radius: 20px; border: 1px solid #e8eaed; background: #fff; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+
+                 @media (max-width: 1024px) {
+                     .acc-billing-grid { grid-template-columns: 1fr; }
+                 }
+
+                 /* Breadcrumbs */
+                 .acc-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 500; }
+                 .acc-breadcrumb-item { color: #5f6368; cursor: pointer; transition: 0.2s; }
+                 .acc-breadcrumb-item:hover { color: #1a73e8; }
+                 .acc-breadcrumb-separator { color: #dadce0; }
+                 .acc-breadcrumb-current { color: #202124; font-weight: 600; }
+
+                 /* Desktop Layout Polish */
+
+                 /* Clerk Overrides Deep Clean */
+                 .cl-rootBox { width: 100% !important; max-width: none !important; }
+                 .cl-card { box-shadow: none !important; border: none !important; background: transparent !important; padding: 0 !important; }
+                 .cl-navbar { display: none !important; }
+                 .cl-pageScrollBox { padding: 0 !important; }
+                 .cl-profileSection { border-bottom: 1px solid #f1f3f4 !important; padding-bottom: 24px !important; margin-bottom: 24px !important; }
+                 .cl-profileSectionTitleText { font-size: 1.1rem !important; color: #202124 !important; }
+                 .cl-headerTitle { display: none !important; } /* Hide redundant Profile Details */
+                 .cl-headerSubtitle { display: none !important; }
+                 .cl-userPreviewAvatarContainer { border: 2px solid #e8f0fe !important; }
+                 .cl-formButtonPrimary { background-color: #1a73e8 !important; border-radius: 10px !important; text-transform: none !important; }
+                 .cl-profilePage { gap: 0 !important; }
+                 .cl-profileSection:last-child { border-bottom: none !important; }
+                 /* Hide the Account menu button inside Clerk */
+                 .cl-profilePage--sidebar-toggle { display: none !important; }
             `}</style>
         </div>
     );
